@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import logo from './logo.svg';
-import "./App.css";
+import React from 'react';
+import Dashboard from './components/Dashboard/Dashboard';
+import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -119,29 +119,7 @@ function App() {
   // Main simulator
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h2>Bank Account Simulator</h2>
-        <h3>Balance: ${balance.toFixed(2)}</h3>
-        <input
-          type="number"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          placeholder="Enter amount"
-        />
-        <div className="button-group">
-          <button className="deposit" onClick={handleDeposit}>Deposit</button>
-          <button className="withdraw" onClick={handleWithdraw}>Withdraw</button>
-        </div>
-        <h4>Transaction History</h4>
-        <ul>
-          {history.map((item, idx) => (
-            <li key={idx}>
-              [{item.date}] {item.type}: ${item.amount.toFixed(2)}
-            </li>
-          ))}
-        </ul>
-      </header>
+      <Dashboard />
     </div>
   );
 }
