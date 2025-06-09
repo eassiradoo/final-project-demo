@@ -32,8 +32,20 @@ const createTables = () => {
     )
   `;
 
+  const createTransactionsTable = `
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      accountId INTEGER NOT NULL,
+      description TEXT NOT NULL,
+      amount DECIMAL(10,2) NOT NULL,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE
+    )
+  `;
+
   db.exec(createUsersTable);
   db.exec(createAccountsTable);
+  db.exec(createTransactionsTable);
 };
 
 const seedData = () => {
@@ -47,24 +59,33 @@ const seedData = () => {
     VALUES (?, ?, ?, ?)
   `);
 
-  // where we add more seed data :)
+  const insertTransaction = db.prepare(`
+    INSERT INTO transactions (accountId, description, amount, date)
+    VALUES (?, ?, ?, ?)
+  `);
 
+  // Create single user
   const user1 = insertUser.run(
     "John",
     "Doe",
     "john.doe@example.com",
     "+1234567890"
   );
-  const user2 = insertUser.run(
-    "Jane",
-    "Smith",
-    "jane.smith@example.com",
-    "+1234567891"
-  );
 
-  insertAccount.run(user1.lastInsertRowid, 1000000, "checking", 1000);
-  insertAccount.run(user1.lastInsertRowid, 1000001, "savings", 5000);
-  insertAccount.run(user2.lastInsertRowid, 1000002, "checking", 2500);
+  // Create accounts for John
+  const account1 = insertAccount.run(user1.lastInsertRowid, 1000000, "checking", 1000);
+  const account2 = insertAccount.run(user1.lastInsertRowid, 1000001, "savings", 5000);
+
+  // Add transactions for John's checking account
+  insertTransaction.run(account1.lastInsertRowid, "Salary Deposit", 5000, "2024-03-01");
+  insertTransaction.run(account1.lastInsertRowid, "Rent Payment", -1500, "2024-03-02");
+  insertTransaction.run(account1.lastInsertRowid, "Grocery Shopping", -200, "2024-03-03");
+  insertTransaction.run(account1.lastInsertRowid, "Freelance Work", 800, "2024-03-04");
+  insertTransaction.run(account1.lastInsertRowid, "Utility Bill", -150, "2024-03-05");
+
+  // Add a few transactions for John's savings account
+  insertTransaction.run(account2.lastInsertRowid, "Initial Deposit", 5000, "2024-03-01");
+  insertTransaction.run(account2.lastInsertRowid, "Interest Earned", 50, "2024-03-15");
 };
 
 createTables();
