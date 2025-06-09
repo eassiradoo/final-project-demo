@@ -1,0 +1,114 @@
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.action-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border: none;
+  border-radius: 12px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button:hover:not(.action-button--disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active:not(.action-button--disabled) {
+  transform: translateY(0);
+}
+
+.action-button--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.action-button--disabled::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.1) 10px,
+    rgba(0, 0, 0, 0.1) 20px
+  );
+}
+
+.action-button__icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.action-button--blue .action-button__icon {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.action-button--red .action-button__icon {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.action-button--purple .action-button__icon {
+  background: #e9d5ff;
+  color: #7c3aed;
+}
+
+.action-button--green .action-button__icon {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.action-button__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .action-buttons {
+    gap: 0.75rem;
+  }
+
+  .action-button {
+    padding: 1.25rem;
+    min-height: 80px;
+  }
+
+  .action-button__icon {
+    font-size: 1.25rem;
+    width: 32px;
+    height: 32px;
+  }
+
+  .action-button__label {
+    font-size: 0.8rem;
+  }
+}

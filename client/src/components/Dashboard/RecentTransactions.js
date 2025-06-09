@@ -1,46 +1,74 @@
-import React from 'react';
-import './RecentTransactions.css';
+import React from "react";
+import { formatCurrency, formatRelativeDate } from "../../utils/formatters";
+import "./RecentTransactions.css";
 
-const RecentTransactions = ({ transactions, dateRange }) => {
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  const filteredTransactions = transactions.filter(transaction => {
-    const transactionDate = new Date(transaction.date);
-    return transactionDate >= dateRange.startDate && 
-           transactionDate <= dateRange.endDate;
-  });
+const RecentTransactions = ({ transactions, loading }) => {
+  if (loading) {
+    return (
+      <div className="recent-transactions">
+        <div className="recent-transactions__header">
+          <h2 className="recent-transactions__title">Recent Transactions</h2>
+          <p className="recent-transactions__subtitle">
+            Your latest account activity
+          </p>
+        </div>
+        <div className="recent-transactions__loading">
+          Loading transactions...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="recent-transactions">
-      <h2>Recent Transactions</h2>
-      <div className="transactions-list">
-        {filteredTransactions.map((transaction) => (
-          <div key={transaction.id} className="transaction-item">
-            <div className="transaction-info">
-              <div className="transaction-title">{transaction.description}</div>
-              <div className="transaction-date">{formatDate(transaction.date)}</div>
+      <div className="recent-transactions__header">
+        <h2 className="recent-transactions__title">Recent Transactions</h2>
+        <p className="recent-transactions__subtitle">
+          Your latest account activity
+        </p>
+      </div>
+
+      <div className="recent-transactions__list">
+        {transactions && transactions.length > 0 ? (
+          transactions.map((transaction) => (
+            <div key={transaction.id} className="transaction-item">
+              <div className="transaction-item__icon">
+                <div
+                  className={`transaction-icon transaction-icon--${transaction.type}`}
+                >
+                  {transaction.type === "deposit" ? "⬇" : "⬆"}
+                </div>
+              </div>
+
+              <div className="transaction-item__details">
+                <div className="transaction-item__description">
+                  {transaction.description ||
+                    (transaction.type === "deposit" ? "Deposit" : "Withdrawal")}
+                </div>
+                <div className="transaction-item__meta">
+                  {transaction.accountType
+                    ? `${
+                        transaction.accountType.charAt(0).toUpperCase() +
+                        transaction.accountType.slice(1)
+                      } • `
+                    : ""}
+                  {formatRelativeDate(transaction.createdAt)}
+                </div>
+              </div>
+
+              <div
+                className={`transaction-item__amount transaction-item__amount--${transaction.type}`}
+              >
+                {transaction.type === "deposit" ? "+" : "-"}
+                {formatCurrency(transaction.amount)}
+              </div>
             </div>
-            <div className={`transaction-amount ${transaction.amount < 0 ? 'negative' : 'positive'}`}>
-              {formatAmount(transaction.amount)}
-            </div>
-          </div>
-        ))}
-        {filteredTransactions.length === 0 && (
-          <div className="no-transactions">
-            No transactions found for the selected date range
+          ))
+        ) : (
+          <div className="recent-transactions__empty">
+            <div className="recent-transactions__empty-icon">📊</div>
+            <p>No recent transactions</p>
+            <span>Your transaction history will appear here</span>
           </div>
         )}
       </div>
@@ -48,4 +76,4 @@ const RecentTransactions = ({ transactions, dateRange }) => {
   );
 };
 
-export default RecentTransactions; 
+export default RecentTransactions;
