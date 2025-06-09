@@ -1,99 +1,155 @@
-const Account = require("../models/accountModel");
+const dbHelpers = require("../config/database");
 
-// Get all accounts
-exports.getAllAccounts = async (req, res) => {
+const getAllAccounts = async (req, res) => {
   try {
-    const accounts = await Account.find();
+    const accounts = await dbHelpers.all("SELECT * FROM accounts");
     res.json(accounts);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Get account by ID
-exports.getAccountById = async (req, res) => {
+const getAllAccountsByUserId = async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const account = await Account.findById(req.params.id);
-    if (!account) return res.status(404).json({ message: "Account not found" });
+    const accounts = await dbHelpers.all(
+      "SELECT * FROM accounts WHERE userId = ?",
+      [userId]
+    );
+    if (accounts.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No accounts found for this user" });
+    }
+    res.json(accounts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const getAccountById = async (req, res) => {
+  // Could possibly change to a req.body
+  const { id } = req.params;
+
+  try {
+    const account = await dbHelpers.get("SELECT * FROM accounts WHERE id = ?", [
+      id,
+    ]);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
     res.json(account);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Create new account
-exports.createAccount = async (req, res) => {
-  const account = new Account(req.body);
-  try {
-    const newAccount = await account.save();
-    res.status(201).json(newAccount);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+const withdrawFromAccount = async (req, res) => {
+  const { accountId, amount } = req.body;
 
-// Update account
-exports.updateAccount = async (req, res) => {
   try {
-    const updatedAccount = await Account.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
+    // Check if account exists
+    const account = await dbHelpers.get("SELECT * FROM accounts WHERE id = ?", [
+      accountId,
+    ]);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
+    }
+
+    // Check if sufficient balance
+    if (account.balance < amount) {
+      return res.status(400).json({ message: "Insufficient balance" });
+    }
+
+    // Update the account balance
+    await dbHelpers.run(
+      "UPDATE accounts SET balance = balance - ? WHERE id = ?",
+      [amount, accountId]
     );
-    if (!updatedAccount)
-      return res.status(404).json({ message: "Account not found" });
-    res.json(updatedAccount);
+
+    res.json({
+      message: "Withdrawal successful",
+      newBalance: account.balance - amount,
+    });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Withdraw from account
-exports.withdrawFromAccount = async (req, res) => {
-  try {
-    const account = await Account.findById(req.params.id);
-    if (!account) return res.status(404).json({ message: "Account not found" });
+const depositToAccount = async (req, res) => {
+  const { accountId, amount } = req.body;
 
-    const amount = req.body.amount;
-    if (amount <= 0 || amount > account.balance) {
-      return res.status(400).json({ message: "Invalid withdrawal amount" });
+  try {
+    // Check if account exists
+    const account = await dbHelpers.get("SELECT * FROM accounts WHERE id = ?", [
+      accountId,
+    ]);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
     }
 
-    account.balance -= amount;
-    const updatedAccount = await account.save();
-    res.json(updatedAccount);
+    // Update the account balance
+    await dbHelpers.run(
+      "UPDATE accounts SET balance = balance + ? WHERE id = ?",
+      [amount, accountId]
+    );
+
+    res.json({
+      message: "Deposit successful",
+      newBalance: account.balance + amount,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Deposit to account
-exports.depositToAccount = async (req, res) => {
-  try {
-    const account = await Account.findById(req.params.id);
-    if (!account) return res.status(404).json({ message: "Account not found" });
+const deleteAccount = async (req, res) => {
+  const { id } = req.params;
 
-    const amount = req.body.amount;
-    if (amount <= 0) {
-      return res.status(400).json({ message: "Invalid deposit amount" });
+  try {
+    // Check if account exists
+    const account = await dbHelpers.get("SELECT * FROM accounts WHERE id = ?", [
+      id,
+    ]);
+    if (!account) {
+      return res.status(404).json({ message: "Account not found" });
     }
 
-    account.balance += amount;
-    const updatedAccount = await account.save();
-    res.json(updatedAccount);
+    // Delete the account
+    await dbHelpers.run("DELETE FROM accounts WHERE id = ?", [id]);
+
+    res.json({ message: "Account deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Delete account
-exports.deleteAccount = async (req, res) => {
+const registerAccount = async (req, res) => {
+  const { userId, accountNumber, accountType, balance } = req.body;
+
   try {
-    const deletedAccount = await Account.findByIdAndDelete(req.params.id);
-    if (!deletedAccount)
-      return res.status(404).json({ message: "Account not found" });
-    res.json({ message: "Account deleted" });
+    // Insert new account
+    const result = await dbHelpers.run(
+      "INSERT INTO accounts (userId, accountNumber, accountType, balance) VALUES (?, ?, ?, ?)",
+      [userId, accountNumber, accountType, balance]
+    );
+
+    res.status(201).json({
+      message: "Account created successfully",
+      accountId: result.lastInsertRowid,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+};
+
+module.exports = {
+  getAllAccounts,
+  withdrawFromAccount,
+  depositToAccount,
+  getAccountById,
+  getAllAccountsByUserId,
+  deleteAccount,
+  registerAccount,
 };
