@@ -114,7 +114,8 @@ const Dashboard = () => {
     ]);
     setAmount('');
   };
-=======
+
+  
   if (loading) {
     return <div className="dashboard">Loading...</div>;
   }
