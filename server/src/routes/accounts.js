@@ -11,6 +11,7 @@ const {
 
 const router = express.Router();
 
+// All of these start with /accounts
 router.get("/", getAllAccounts);
 router.put("/withdraw", withdrawFromAccount);
 router.put("/deposit", depositToAccount);
