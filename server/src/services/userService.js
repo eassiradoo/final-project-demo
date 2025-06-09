@@ -8,18 +8,26 @@ class UserService {
   }
 
   static createUser(userData) {
-    const { firstName, lastName, email, phone, dateOfBirth, address } =
-      userData;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      address,
+    } = userData;
 
     const sql = `
-      INSERT INTO users (firstName, lastName, email, phone, dateOfBirth, address)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (firstName, lastName, email, password, phone, dateOfBirth, address)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
     const result = db.run(sql, [
       firstName,
       lastName,
       email,
+      password,
       phone,
       dateOfBirth,
       address,
@@ -30,12 +38,19 @@ class UserService {
   }
 
   static updateUser(id, updateData) {
-    const { firstName, lastName, email, phone, dateOfBirth, address } =
-      updateData;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      address,
+    } = updateData;
 
     const sql = `
       UPDATE users 
-      SET firstName = ?, lastName = ?, email = ?, phone = ?, 
+      SET firstName = ?, lastName = ?, email = ?, password = ?, phone = ?, 
           dateOfBirth = ?, address = ?, updatedAt = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
@@ -44,6 +59,7 @@ class UserService {
       firstName,
       lastName,
       email,
+      password,
       phone,
       dateOfBirth,
       address,
@@ -65,8 +81,23 @@ class UserService {
   }
 
   static getUserByEmail(email) {
-    const sql = "SELECT id, email FROM users WHERE email = ?";
+    const sql = "SELECT id, email, password FROM users WHERE email = ?";
     return db.get(sql, [email]);
+  }
+
+  static authenticateUser(email, password) {
+    const user = this.getUserByEmail(email);
+    if (!user) {
+      return null; // User not found
+    }
+
+    if (user.password === password) {
+      // Return user without password for security
+      const { password: _, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+
+    return null; // Invalid password
   }
 
   static validateUserData(userData) {
@@ -90,6 +121,14 @@ class UserService {
 
     if (!userData.email || !this.isValidEmail(userData.email)) {
       errors.push("Valid email is required");
+    }
+
+    if (
+      !userData.password ||
+      typeof userData.password !== "string" ||
+      userData.password.length < 6
+    ) {
+      errors.push("Password must be at least 6 characters long");
     }
 
     if (!userData.phone || !this.isValidPhone(userData.phone)) {
