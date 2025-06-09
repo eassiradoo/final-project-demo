@@ -1,0 +1,37 @@
+.date-filter {
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.date-inputs {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.date-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.date-input label {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.date-input input {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.date-input input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+} 
