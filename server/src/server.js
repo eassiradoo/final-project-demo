@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-// Import routes
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
@@ -14,6 +13,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the CRUD API" });
+});
+
+app.use("/accounts", require("./routes/accounts"));
   res.json({ message: "Welcome to the Banking API" });
 });
 
