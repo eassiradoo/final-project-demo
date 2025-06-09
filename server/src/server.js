@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const userRoutes = require("./routes/userRoutes");
+const transactionRoutes = require("./routes/transactionRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/accounts", require("./routes/accounts"));
+app.use("/api/transactions", transactionRoutes);
 // res.json({ message: "Welcome to the Banking API" })
 
 // User routes

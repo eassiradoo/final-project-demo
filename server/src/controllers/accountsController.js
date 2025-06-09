@@ -1,5 +1,6 @@
 const { json } = require("express");
 const dbHelpers = require("../config/database");
+const TransactionService = require("../services/transactionService");
 
 const getAllAccounts = async (req, res) => {
   try {
@@ -47,7 +48,7 @@ const getAccountById = async (req, res) => {
 };
 
 const withdrawFromAccount = async (req, res) => {
-  const { accountId, amount } = req.body;
+  const { accountId, amount, description } = req.body;
 
   try {
     // Check if account exists
@@ -69,9 +70,20 @@ const withdrawFromAccount = async (req, res) => {
       [amount, accountId]
     );
 
+    // Create transaction record
+    const transactionData = {
+      accountId,
+      type: "withdrawal",
+      amount,
+      description: description || "ATM Withdrawal",
+    };
+
+    const transaction = TransactionService.createTransaction(transactionData);
+
     res.json({
       message: "Withdrawal successful",
       newBalance: account.balance - amount,
+      transaction: transaction,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -79,7 +91,7 @@ const withdrawFromAccount = async (req, res) => {
 };
 
 const depositToAccount = async (req, res) => {
-  const { accountId, amount } = req.body;
+  const { accountId, amount, description } = req.body;
 
   try {
     // Check if account exists
@@ -96,9 +108,20 @@ const depositToAccount = async (req, res) => {
       [amount, accountId]
     );
 
+    // Create transaction record
+    const transactionData = {
+      accountId,
+      type: "deposit",
+      amount,
+      description: description || "Deposit",
+    };
+
+    const transaction = TransactionService.createTransaction(transactionData);
+
     res.json({
       message: "Deposit successful",
       newBalance: account.balance + amount,
+      transaction: transaction,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

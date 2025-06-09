@@ -33,8 +33,21 @@ const createTables = () => {
     )
   `;
 
+  const createTransactionsTable = `
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      accountId INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('deposit', 'withdrawal')),
+      amount DECIMAL(10,2) NOT NULL,
+      description TEXT,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE
+    )
+  `;
+
   db.exec(createUsersTable);
   db.exec(createAccountsTable);
+  db.exec(createTransactionsTable);
 };
 
 const seedData = () => {
@@ -45,6 +58,11 @@ const seedData = () => {
 
   const insertAccount = db.prepare(`
     INSERT INTO accounts (userId, accountNumber, accountType, balance)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  const insertTransaction = db.prepare(`
+    INSERT INTO transactions (accountId, type, amount, description)
     VALUES (?, ?, ?, ?)
   `);
 
@@ -65,9 +83,51 @@ const seedData = () => {
     "+1234567891"
   );
 
-  insertAccount.run(user1.lastInsertRowid, 1000000, "checking", 1000);
-  insertAccount.run(user1.lastInsertRowid, 1000001, "savings", 5000);
-  insertAccount.run(user2.lastInsertRowid, 1000002, "checking", 2500);
+  const account1 = insertAccount.run(
+    user1.lastInsertRowid,
+    1000000,
+    "checking",
+    1000
+  );
+  const account2 = insertAccount.run(
+    user1.lastInsertRowid,
+    1000001,
+    "savings",
+    5000
+  );
+  const account3 = insertAccount.run(
+    user2.lastInsertRowid,
+    1000002,
+    "checking",
+    2500
+  );
+
+  // Add sample transactions
+  insertTransaction.run(
+    account1.lastInsertRowid,
+    "deposit",
+    2500.0,
+    "Direct Deposit - Salary"
+  );
+  insertTransaction.run(
+    account1.lastInsertRowid,
+    "withdrawal",
+    150.0,
+    "ATM Withdrawal"
+  );
+  insertTransaction.run(account2.lastInsertRowid, "deposit", 1000.0, "Deposit");
+  insertTransaction.run(
+    account2.lastInsertRowid,
+    "deposit",
+    4000.0,
+    "Initial Deposit"
+  );
+  insertTransaction.run(
+    account3.lastInsertRowid,
+    "deposit",
+    2500.0,
+    "Opening Deposit"
+  );
 };
 
 createTables();
