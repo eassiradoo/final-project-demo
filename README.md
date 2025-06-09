@@ -19,10 +19,12 @@ final-project-demo/
 
 1. Clone the repository
 2. Set up the database:
+
    - Create a PostgreSQL database named `crud_app`
    - Update the `.env` file in the server directory with your database credentials
 
 3. Backend Setup:
+
    ```bash
    cd server
    npm install
@@ -39,6 +41,7 @@ final-project-demo/
 ## Environment Variables
 
 Create a `.env` file in the server directory with the following variables:
+
 ```
 PORT=5000
 DB_USER=postgres
@@ -51,9 +54,14 @@ DB_PORT=5432
 ## Available Scripts
 
 ### Backend
+
 - `npm run dev`: Start the development server with nodemon
 - `npm start`: Start the production server
 
 ### Frontend
+
 - `npm start`: Start the development server
 - `npm build`: Build the production bundle
+
+ERD
+https://docs.google.com/document/d/1gZgBknP-TdIvRnV8hydEVhcpusiUxX36_JKGlZGsw-I/edit?usp=sharing
