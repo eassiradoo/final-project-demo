@@ -21,6 +21,9 @@ const Dashboard = () => {
     startDate: new Date(new Date().setDate(new Date().getDate() - 30)),
     endDate: new Date()
   });
+  const [amount, setAmount] = useState('');
+  const [history, setHistory] = useState([]);
+  const [inputError, setInputError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +65,56 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleDeposit = () => {
+    const depositAmount = parseFloat(amount);
+    if (isNaN(depositAmount) || amount.trim() === "") {
+      setInputError("Please enter a valid number to deposit.");
+      return;
+    }
+    setInputError("");
+    setBalance(prevBalance => prevBalance + depositAmount);
+    const newTransaction = {
+      id: transactions.length + 1,
+      description: 'Manual Deposit',
+      amount: depositAmount,
+      date: new Date().toISOString().slice(0, 10),
+    };
+    setTransactions(prev => [newTransaction, ...prev]);
+    setHistory(prevHistory => [
+      ...prevHistory,
+      { date: new Date().toLocaleString(), type: 'Deposit', amount: depositAmount }
+    ]);
+    setAmount('');
+  };
+
+  const handleWithdraw = () => {
+    const withdrawAmount = parseFloat(amount);
+    if (isNaN(withdrawAmount) || amount.trim() === "") {
+      setInputError("Please enter a valid number to withdraw.");
+      return;
+    }
+    if (withdrawAmount > balance) {
+      setInputError("Insufficient funds for this withdrawal.");
+      return;
+    }
+    setInputError("");
+    setBalance(prevBalance => prevBalance - withdrawAmount);
+
+    // Add to transactions
+    const newTransaction = {
+      id: transactions.length + 1,
+      description: 'Manual Withdraw',
+      amount: -withdrawAmount,
+      date: new Date().toISOString().slice(0, 10),
+    };
+    setTransactions(prev => [newTransaction, ...prev]);
+    setHistory(prevHistory => [
+      ...prevHistory,
+      { date: new Date().toLocaleString(), type: 'Withdraw', amount: withdrawAmount }
+    ]);
+    setAmount('');
+  };
+=======
   if (loading) {
     return <div className="dashboard">Loading...</div>;
   }
@@ -112,6 +165,48 @@ const Dashboard = () => {
       <div className="dashboard-grid">
         <div className="balance-container">
           <BalanceOverview balance={balance} />
+          {/* Move input and buttons here */}
+          <div
+            style={{
+              marginLeft: "2.5rem",
+              marginTop: "2.5rem",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center"
+            }}
+          >
+            <input
+              type="number"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+              placeholder="Enter amount"
+              style={{
+                padding: "0.7rem 1rem",
+                borderRadius: 8,
+                border: "1px solid #bbb",
+                fontSize: "1rem",
+                marginBottom: "1rem",
+                width: "80%",
+                maxWidth: 220,
+              }}
+            />
+            <div className="button-group">
+              <button className="deposit" onClick={handleDeposit}>Deposit</button>
+              <button className="withdraw" onClick={handleWithdraw}>Withdraw</button>
+            </div>
+            {inputError && (
+              <div
+                style={{
+                  color: "#c0392b",
+                  fontWeight: 500,
+                  marginBottom: "0.5rem",
+                  marginTop: "1rem"
+                }}
+              >
+                {inputError}
+              </div>
+            )}
+          </div>
         </div>
         <div className="dashboard-main">
           <div className="dashboard-left">
@@ -144,4 +239,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

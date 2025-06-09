@@ -148,7 +148,14 @@ function App() {
   // Main simulator
   return (
     <div className="App">
-      <Dashboard />
+      <Dashboard
+        balance={balance}
+        amount={amount}
+        setAmount={setAmount}
+        handleDeposit={handleDeposit}
+        handleWithdraw={handleWithdraw}
+        history={history}
+      />
     </div>
   );
 }

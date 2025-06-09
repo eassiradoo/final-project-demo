@@ -48,6 +48,36 @@
   font-size: 1.2rem;
 }
 
+.button-group{
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.deposit,
+.withdraw {
+  padding: 0.7rem 2.2rem;
+  border-radius: 12px;
+  border: 1.5px solid #e0eafc;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #234567;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s;
+}
+
+.deposit:hover,
+.withdraw:hover {
+  background: #e0eafc;
+  color: #1565c0;
+  border-color: #b6c6e3;
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.13);
+}
+
 @media (max-width: 768px) {
   .dashboard-main {
     grid-template-columns: 1fr;
@@ -56,4 +86,4 @@
   .section-header {
     justify-content: flex-start;
   }
-} 
+}
