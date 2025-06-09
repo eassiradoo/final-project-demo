@@ -7,20 +7,11 @@ import TransactionModal from "../Modals/TransactionModal";
 import { accountsAPI, transactionsAPI } from "../../services/api";
 import "./Dashboard.css";
 
-const Dashboard = () => {
-  const [user, setUser] = useState(null);
+const Dashboard = ({ user }) => {
   const [accounts, setAccounts] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalState, setModalState] = useState({ type: null, isOpen: false });
-
-  // Get user from localStorage on mount
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
 
   // Fetch data when user is available
   useEffect(() => {

@@ -81,7 +81,7 @@ class UserService {
   }
 
   static getUserByEmail(email) {
-    const sql = "SELECT id, email, password FROM users WHERE email = ?";
+    const sql = "SELECT * FROM users WHERE email = ?";
     return db.get(sql, [email]);
   }
 

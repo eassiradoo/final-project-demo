@@ -16,7 +16,9 @@ const LoginPage = ({ onLogin, onBackToHome }) => {
     setIsLoading(true);
 
     try {
-      const user = await userAPI.login(formData.email, formData.password);
+      const response = await userAPI.login(formData.email, formData.password);
+      // Extract user data from the response structure
+      const user = response.data || response;
       onLogin(user);
     } catch (err) {
       setError(err.message || "Invalid email or password");
