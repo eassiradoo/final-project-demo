@@ -11,6 +11,7 @@ const createTables = () => {
       firstName TEXT NOT NULL,
       lastName TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
       phone TEXT NOT NULL,
       dateOfBirth TEXT,
       address TEXT,
@@ -32,14 +33,26 @@ const createTables = () => {
     )
   `;
 
+  const createTransactionsTable = `
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      accountId INTEGER NOT NULL,
+      description TEXT NOT NULL,
+      amount DECIMAL(10,2) NOT NULL,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (accountId) REFERENCES accounts(id) ON DELETE CASCADE
+    )
+  `;
+
   db.exec(createUsersTable);
   db.exec(createAccountsTable);
+  db.exec(createTransactionsTable);
 };
 
 const seedData = () => {
   const insertUser = db.prepare(`
-    INSERT INTO users (firstName, lastName, email, phone)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (firstName, lastName, email, password, phone)
+    VALUES (?, ?, ?, ?, ?)
   `);
 
   const insertAccount = db.prepare(`
@@ -47,18 +60,24 @@ const seedData = () => {
     VALUES (?, ?, ?, ?)
   `);
 
-  // where we add more seed data :)
+  const insertTransaction = db.prepare(`
+    INSERT INTO transactions (accountId, description, amount, date)
+    VALUES (?, ?, ?, ?)
+  `);
 
+  // Create single user
   const user1 = insertUser.run(
     "John",
     "Doe",
     "john.doe@example.com",
+    "password123",
     "+1234567890"
   );
   const user2 = insertUser.run(
     "Jane",
     "Smith",
     "jane.smith@example.com",
+    "password456",
     "+1234567891"
   );
 

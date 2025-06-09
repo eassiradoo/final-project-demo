@@ -165,6 +165,30 @@ const registerAccount = async (req, res) => {
   }
 };
 
+const getAccountTransactions = async (req, res) => {
+  const { id } = req.params;
+  console.log(`Fetching transactions for account ID: ${id}`);
+
+  try {
+    const transactions = await dbHelpers.all(
+      "SELECT * FROM transactions WHERE accountId = ? ORDER BY date DESC",
+      [id]
+    );
+    
+    console.log(`Found ${transactions.length} transactions for account ${id}`);
+    
+    if (transactions.length === 0) {
+      console.log(`No transactions found for account ${id}`);
+      return res.json([]);
+    }
+    
+    res.json(transactions);
+  } catch (err) {
+    console.error(`Error fetching transactions for account ${id}:`, err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getAllAccounts,
   withdrawFromAccount,
@@ -173,4 +197,5 @@ module.exports = {
   getAllAccountsByUserId,
   deleteAccount,
   registerAccount,
+  getAccountTransactions
 };

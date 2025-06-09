@@ -1,23 +1,46 @@
-import React, { useState } from 'react';
-import Dashboard from './components/Dashboard/Dashboard';
-import './App.css';
+import React, { useState } from "react";
+import Dashboard from "./components/Dashboard/Dashboard";
+import "./App.css";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [balance, setBalance] = useState(1000);
   const [amount, setAmount] = useState("");
   const [history, setHistory] = useState([]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (loginForm.username && loginForm.password) {
-      setIsLoggedIn(true);
-      setLoginError("");
+    if (loginForm.email && loginForm.password) {
+      try {
+        const response = await fetch("http://localhost:3001/api/users/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: loginForm.email,
+            password: loginForm.password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setIsLoggedIn(true);
+          setLoginError("");
+          // Optionally store user data for later use
+          localStorage.setItem("user", JSON.stringify(data.data));
+        } else {
+          setLoginError(data.message || "Login failed");
+        }
+      } catch (error) {
+        setLoginError("Connection error. Please try again.");
+      }
     } else {
-      setLoginError("Please enter both username and password.");
+      setLoginError("Please enter both email and password.");
     }
   };
 
@@ -73,16 +96,18 @@ function App() {
               background: "#fff",
               padding: "2rem 2.5rem",
               borderRadius: 16,
-              boxShadow: "0 4px 24px rgba(44, 62, 80, 0.13)"
+              boxShadow: "0 4px 24px rgba(44, 62, 80, 0.13)",
             }}
-          className="login-container"
+            className="login-container"
             onSubmit={handleLogin}
           >
             <input
-              type="text"
-              placeholder="Username"
-              value={loginForm.username}
-              onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
+              type="email"
+              placeholder="Email"
+              value={loginForm.email}
+              onChange={(e) =>
+                setLoginForm({ ...loginForm, email: e.target.value })
+              }
               style={{
                 padding: "0.7rem 1rem",
                 borderRadius: 8,
@@ -95,7 +120,9 @@ function App() {
               type="password"
               placeholder="Password"
               value={loginForm.password}
-              onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
+              onChange={(e) =>
+                setLoginForm({ ...loginForm, password: e.target.value })
+              }
               style={{
                 padding: "0.7rem 1rem",
                 borderRadius: 8,
@@ -108,7 +135,9 @@ function App() {
               Login
             </button>
             {loginError && (
-              <div style={{ color: "#c0392b", fontWeight: 500 }}>{loginError}</div>
+              <div style={{ color: "#c0392b", fontWeight: 500 }}>
+                {loginError}
+              </div>
             )}
           </form>
         </div>
