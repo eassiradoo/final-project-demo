@@ -160,6 +160,40 @@ class UserController {
       });
     }
   }
+
+  // POST /api/users/login - User login
+  static async loginUser(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Email and password are required",
+        });
+      }
+
+      const user = UserService.authenticateUser(email, password);
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid email or password",
+        });
+      }
+
+      res.json({
+        success: true,
+        data: user,
+        message: "Login successful",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to authenticate user",
+      });
+    }
+  }
 }
 
 module.exports = UserController;

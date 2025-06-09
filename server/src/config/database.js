@@ -11,6 +11,7 @@ const createTables = () => {
       firstName TEXT NOT NULL,
       lastName TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
       phone TEXT NOT NULL,
       dateOfBirth TEXT,
       address TEXT,
@@ -38,8 +39,8 @@ const createTables = () => {
 
 const seedData = () => {
   const insertUser = db.prepare(`
-    INSERT INTO users (firstName, lastName, email, phone)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (firstName, lastName, email, password, phone)
+    VALUES (?, ?, ?, ?, ?)
   `);
 
   const insertAccount = db.prepare(`
@@ -53,12 +54,14 @@ const seedData = () => {
     "John",
     "Doe",
     "john.doe@example.com",
+    "password123",
     "+1234567890"
   );
   const user2 = insertUser.run(
     "Jane",
     "Smith",
     "jane.smith@example.com",
+    "password456",
     "+1234567891"
   );
 
