@@ -1,3 +1,4 @@
+const { json } = require("express");
 const dbHelpers = require("../config/database");
 
 const getAllAccounts = async (req, res) => {
@@ -129,7 +130,27 @@ const registerAccount = async (req, res) => {
   const { userId, accountNumber, accountType, balance } = req.body;
 
   try {
-    // Insert new account
+    const user = await dbHelpers.get("SELECT * FROM users WHERE id = ?", [
+      userId,
+    ]);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.accounts.length === 2) {
+      return res
+        .status(404)
+        .json({ message: "Maximum Number of Accounts Reached" });
+    } else if (user.accounts.length === 1) {
+      const account = user.accounts[0];
+
+      if (account.accountType === accountType) {
+        return res
+          .status(404)
+          .json({ message: `${accountType} account already exists` });
+      }
+    }
+
     const result = await dbHelpers.run(
       "INSERT INTO accounts (userId, accountNumber, accountType, balance) VALUES (?, ?, ?, ?)",
       [userId, accountNumber, accountType, balance]
@@ -139,8 +160,8 @@ const registerAccount = async (req, res) => {
       message: "Account created successfully",
       accountId: result.lastInsertRowid,
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch {
+    return res.status(404).json({ message: "Error making account" });
   }
 };
 
