@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the CRUD API" });
 });
 
-app.use("/accounts", require("./routes/accounts"));
+app.use("/api/accounts", require("./routes/accounts"));
 // res.json({ message: "Welcome to the Banking API" })
 
 // User routes
